@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAP-OrderFlow AI</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f6f7;color:#32363a}
+    .header{background:linear-gradient(135deg,#0a6ed1,#0854a0);color:white;padding:0 24px;display:flex;align-items:center;height:50px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+    .header .logo{font-size:20px;font-weight:700;margin-right:20px}
+    .header .app{font-size:15px;opacity:.9}
+    .nav{background:white;border-bottom:1px solid #d9d9d9;display:flex;padding:0 24px}
+    .nav button{background:none;border:none;cursor:pointer;padding:12px 16px;font-size:14px;color:#0a6ed1;border-bottom:2px solid transparent}
+    .nav button.active{border-bottom-color:#0a6ed1;font-weight:600}
+    .main{max-width:1100px;margin:24px auto;padding:0 16px}
+    .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+    .tile{background:white;border-radius:8px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.1);border-left:4px solid #0a6ed1}
+    .tile .val{font-size:30px;font-weight:700;color:#0a6ed1}
+    .tile .lbl{font-size:12px;color:#6a6d70;margin-top:4px}
+    .card{background:white;border-radius:8px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,.1);margin-bottom:20px}
+    .card-title{font-size:15px;font-weight:600;margin-bottom:16px;color:#1a1a2e}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead th{background:#f5f6f7;padding:10px 12px;text-align:left;color:#6a6d70;border-bottom:2px solid #e5e5e5;font-weight:600}
+    tbody tr{border-bottom:1px solid #f0f0f0}
+    tbody tr:hover{background:#fafbfc}
+    tbody td{padding:10px 12px}
+    .badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
+    .badge-new{background:#d5f0e5;color:#0ead69}
+    .badge-proc{background:#d0e8ff;color:#0a6ed1}
+    .badge-ship{background:#fff3cd;color:#b8860b}
+    .badge-del{background:#e8e8e8;color:#555}
+    .badge-alert{background:#ffe0d8;color:#e9340a}
+    .btn{padding:9px 20px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;border:none}
+    .btn-primary{background:#0a6ed1;color:white}
+    .btn-primary:hover{background:#0854a0}
+    .btn-sm{padding:5px 12px;font-size:12px}
+    .form-row{margin-bottom:14px}
+    .form-row label{display:block;font-size:12px;color:#6a6d70;margin-bottom:4px;font-weight:600}
+    .form-row input,.form-row select{width:100%;padding:8px 10px;border:1px solid #d1d1d6;border-radius:4px;font-size:13px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .progress-bar{height:8px;background:#e5e5e5;border-radius:4px;overflow:hidden;margin-top:6px}
+    .progress-fill{height:100%;border-radius:4px;background:#0a6ed1}
+    .tab-content{display:none}.tab-content.active{display:block}
+    .ai-box{background:#f0f7ff;border:1px solid #b3d4f5;border-radius:6px;padding:14px;margin-top:14px;font-size:13px;line-height:1.7}
+    .ai-box .ai-label{font-weight:700;color:#0a6ed1;margin-bottom:6px}
+    .toast{position:fixed;top:70px;right:20px;background:#0ead69;color:white;padding:12px 20px;border-radius:6px;font-size:13px;display:none;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .metric-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+    .metric-row:last-child{border:none}
+  </style>
+</head>
+<body>
+<div class="header"><div class="logo">SAP</div><div class="app">📦 SAP-OrderFlow AI — Order Management System</div></div>
+<div class="nav">
+  <button class="active" onclick="switchTab('dashboard',this)">Dashboard</button>
+  <button onclick="switchTab('orders',this)">Orders</button>
+  <button onclick="switchTab('create',this)">New Order</button>
+  <button onclick="switchTab('forecast',this)">AI Forecast</button>
+  <button onclick="switchTab('inventory',this)">Inventory</button>
+</div>
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="tab-content active">
+    <div class="tiles">
+      <div class="tile"><div class="val">1,284</div><div class="lbl">Total Orders Today</div></div>
+      <div class="tile" style="border-color:#0ead69"><div class="val" style="color:#0ead69">₹48.2L</div><div class="lbl">Revenue (Today)</div></div>
+      <div class="tile" style="border-color:#e9340a"><div class="val" style="color:#e9340a">7</div><div class="lbl">Anomalies Detected</div></div>
+      <div class="tile" style="border-color:#f5a623"><div class="val" style="color:#f5a623">94.3%</div><div class="lbl">On-Time Delivery</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">📊 Order Status Breakdown</div>
+        <div class="metric-row"><span>🟢 New Orders</span><span style="font-weight:700;color:#0ead69">312</span></div>
+        <div class="metric-row"><span>🔵 Processing</span><span style="font-weight:700;color:#0a6ed1">487</span></div>
+        <div class="metric-row"><span>🟡 Shipped</span><span style="font-weight:700;color:#b8860b">391</span></div>
+        <div class="metric-row"><span>✅ Delivered</span><span style="font-weight:700;color:#555">94</span></div>
+        <div class="metric-row"><span>🔴 Anomaly Alert</span><span style="font-weight:700;color:#e9340a">7</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🤖 AI Insights</div>
+        <div class="ai-box">
+          <div class="ai-label">Demand Forecast — Next 7 Days</div>
+          <div>📈 Expected surge of <strong>+23%</strong> in Electronics orders</div>
+          <div style="margin-top:6px">⚠️ Low stock alert: <strong>SKU-4821</strong> (Laptop Stand) — reorder recommended</div>
+          <div style="margin-top:6px">✅ Supplier <strong>TechParts India</strong> has 98% on-time score</div>
+          <div style="margin-top:6px">🚨 Anomaly: Order <strong>#ORD-9847</strong> — duplicate detected, flagged for review</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Recent Orders</div>
+      <table>
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr><td>#ORD-9851</td><td>Infosys Ltd.</td><td>Office Chairs (50)</td><td>₹1,25,000</td><td><span class="badge badge-new">New</span></td><td>22 Apr 2026</td></tr>
+          <tr><td>#ORD-9850</td><td>TCS Mumbai</td><td>Laptops (20)</td><td>₹18,00,000</td><td><span class="badge badge-proc">Processing</span></td><td>22 Apr 2026</td></tr>
+          <tr><td>#ORD-9849</td><td>Wipro Bengaluru</td><td>Monitors (35)</td><td>₹4,90,000</td><td><span class="badge badge-ship">Shipped</span></td><td>21 Apr 2026</td></tr>
+          <tr><td>#ORD-9848</td><td>HCL Tech</td><td>Keyboards (100)</td><td>₹80,000</td><td><span class="badge badge-del">Delivered</span></td><td>20 Apr 2026</td></tr>
+          <tr><td>#ORD-9847</td><td>Accenture</td><td>Headsets (200)</td><td>₹3,20,000</td><td><span class="badge badge-alert">⚠ Anomaly</span></td><td>20 Apr 2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div id="tab-orders" class="tab-content">
+    <div class="card">
+      <div class="card-title">📦 All Orders</div>
+      <table>
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Qty</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>#ORD-9851</td><td>Infosys Ltd.</td><td>Office Chairs</td><td>50</td><td>₹1,25,000</td><td><span class="badge badge-new">New</span></td><td><button class="btn btn-primary btn-sm" onclick="toast('Order #ORD-9851 moved to Processing')">Process</button></td></tr>
+          <tr><td>#ORD-9850</td><td>TCS Mumbai</td><td>Laptops</td><td>20</td><td>₹18,00,000</td><td><span class="badge badge-proc">Processing</span></td><td><button class="btn btn-sm" style="background:#0ead69;color:white" onclick="toast('Order #ORD-9850 marked as Shipped')">Ship</button></td></tr>
+          <tr><td>#ORD-9849</td><td>Wipro Bengaluru</td><td>Monitors</td><td>35</td><td>₹4,90,000</td><td><span class="badge badge-ship">Shipped</span></td><td><button class="btn btn-sm" style="background:#555;color:white" onclick="toast('Order #ORD-9849 marked Delivered')">Deliver</button></td></tr>
+          <tr><td>#ORD-9847</td><td>Accenture</td><td>Headsets</td><td>200</td><td>₹3,20,000</td><td><span class="badge badge-alert">⚠ Anomaly</span></td><td><button class="btn btn-sm" style="background:#e9340a;color:white" onclick="toast('Order flagged for manual review')">Review</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CREATE ORDER -->
+  <div id="tab-create" class="tab-content">
+    <div class="card" style="max-width:600px">
+      <div class="card-title">➕ Create New Order</div>
+      <div class="grid2">
+        <div class="form-row"><label>Customer Name</label><input id="cust" placeholder="e.g. Infosys Ltd."/></div>
+        <div class="form-row"><label>Product</label><input id="prod" placeholder="e.g. Laptops"/></div>
+        <div class="form-row"><label>Quantity</label><input id="qty" type="number" placeholder="e.g. 20"/></div>
+        <div class="form-row"><label>Unit Price (₹)</label><input id="price" type="number" placeholder="e.g. 90000"/></div>
+      </div>
+      <div class="form-row"><label>Delivery Address</label><input id="addr" placeholder="City, State"/></div>
+      <div class="form-row"><label>Priority</label>
+        <select id="prio"><option>Normal</option><option>High</option><option>Urgent</option></select>
+      </div>
+      <button class="btn btn-primary" onclick="createOrder()">📦 Create Order</button>
+    </div>
+  </div>
+
+  <!-- AI FORECAST -->
+  <div id="tab-forecast" class="tab-content">
+    <div class="card">
+      <div class="card-title">🤖 AI Demand Forecast — Powered by OpenAI GPT</div>
+      <div class="ai-box" style="font-size:14px">
+        <div class="ai-label">7-Day Demand Prediction</div>
+        <div>📈 <strong>Electronics</strong> — Surge of +23% expected (Festive season effect)</div>
+        <div>📉 <strong>Furniture</strong> — Slight dip of -8% (Post-quarter slowdown)</div>
+        <div>📊 <strong>IT Peripherals</strong> — Stable demand, +5% growth</div>
+        <div>🚨 <strong>SKU-4821 (Laptop Stand)</strong> — Stock will run out in 3 days. Reorder NOW.</div>
+        <div>✅ <strong>Recommended Action:</strong> Place PO for 500 units of Laptop Stand from TechParts India</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🚨 Anomaly Detection</div>
+      <table>
+        <thead><tr><th>Order ID</th><th>Issue</th><th>Risk</th><th>AI Recommendation</th></tr></thead>
+        <tbody>
+          <tr><td>#ORD-9847</td><td>Duplicate order detected</td><td><span class="badge badge-alert">High</span></td><td>Hold & verify with customer</td></tr>
+          <tr><td>#ORD-9831</td><td>Price 3x above average</td><td><span class="badge badge-alert">Medium</span></td><td>Flag for manager approval</td></tr>
+          <tr><td>#ORD-9819</td><td>Unusual delivery location</td><td><span class="badge badge-ship">Low</span></td><td>Verify address with customer</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div id="tab-inventory" class="tab-content">
+    <div class="card">
+      <div class="card-title">📊 Live Inventory Status</div>
+      <table>
+        <thead><tr><th>SKU</th><th>Product</th><th>Stock</th><th>Reorder Level</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>SKU-1001</td><td>Laptops</td><td>142</td><td>50</td><td><span class="badge badge-new">✅ OK</span></td></tr>
+          <tr><td>SKU-2034</td><td>Office Chairs</td><td>78</td><td>30</td><td><span class="badge badge-new">✅ OK</span></td></tr>
+          <tr><td>SKU-4821</td><td>Laptop Stand</td><td>12</td><td>50</td><td><span class="badge badge-alert">🚨 Reorder</span></td></tr>
+          <tr><td>SKU-3312</td><td>Monitors</td><td>55</td><td>40</td><td><span class="badge badge-ship">⚠ Low</span></td></tr>
+          <tr><td>SKU-5509</td><td>Headsets</td><td>200</td><td>80</td><td><span class="badge badge-new">✅ OK</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toastEl"></div>
+<script>
+function switchTab(tab,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  el.classList.add('active');
+}
+function toast(msg){
+  const t=document.getElementById('toastEl');
+  t.textContent=msg;t.style.display='block';
+  setTimeout(()=>t.style.display='none',3000);
+}
+function createOrder(){
+  const c=document.getElementById('cust').value.trim();
+  const p=document.getElementById('prod').value.trim();
+  if(!c||!p){toast('⚠️ Please fill all fields');return;}
+  toast(`✅ Order created for ${c} — ${p}`);
+  ['cust','prod','qty','price','addr'].forEach(id=>document.getElementById(id).value='');
+}
+</script>
+</body>
+</html>
